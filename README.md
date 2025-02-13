@@ -24,6 +24,28 @@ Due to time constraints, there are some areas that could be further optimized:
 - **API factory pattern**: Improving code structure by centralizing API calls for better maintainability.  
 - **State management setup (e.g., Redux)**: Useful for managing complex state in larger applications.  
 
+### How to Run Problem 2  
+
+To set up and run Problem 2, follow these steps:  
+
+1. **Clone the repository**  
+   ```sh  
+   cd src/problem_2/fancy-form
+   ```  
+
+2. **Install dependencies**  
+   ```sh  
+   yarn install  
+   ```  
+
+3. **Start the development server**  
+   ```sh  
+   yarn dev  
+   ```  
+
+4. **Access the application**  
+   - Open [http://localhost:3000](http://localhost:3000) in your browser.  
+
 ## Problem 3: Solution Explanation  
 
-You can find a detailed explanation of the solution in the provided documentation or code comments.  
+You can find a detailed explanation of the solution in the provided documentation or code comments.
