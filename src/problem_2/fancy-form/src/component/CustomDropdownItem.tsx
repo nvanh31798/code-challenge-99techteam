@@ -25,7 +25,7 @@ export default function CustomDropdownItem({
 }: CustomDropdownItemProps) {
   const [, meta, helpers] = useField(name);
   const { setValue } = helpers;
-  const { value, error, touched } = meta;
+  const { value, error } = meta;
 
   const onSelectHandle = (value: number | null) => {
     handleChange?.(value);

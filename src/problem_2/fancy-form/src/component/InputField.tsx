@@ -8,7 +8,6 @@ export interface InputFieldProps {
   defaultValue?: string;
   value: string | number | undefined;
   name: string;
-  label?: string;
   placeholder?: string;
   required?: boolean;
 }
@@ -17,7 +16,6 @@ export const InputField = ({
   handleChange,
   handleBlur,
   name,
-  label,
   placeholder,
   required = false,
 }: InputFieldProps) => {

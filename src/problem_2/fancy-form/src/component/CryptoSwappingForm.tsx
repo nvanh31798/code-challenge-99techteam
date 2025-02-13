@@ -7,6 +7,7 @@ import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import CustomDropdownItem from "./CustomDropdownItem";
 import { SelectionOptionItem } from "./SelectionOptionItem";
 import { ICryptoForm } from "../interfaces/ICryptoForm";
+import { toast } from "react-toastify";
 
 interface CryptoInfo {
   currency?: string;
@@ -16,6 +17,30 @@ interface CryptoInfo {
 
 export const CryptoSwappingForm = () => {
   const [cryptoList, setCryptoList] = useState<CryptoInfo[]>([]);
+
+  const displayToast = (
+    type: "error" | "success" | "warning",
+    message: string
+  ) => {
+    switch (type) {
+      case "error":
+        toast.error(message, {
+          position: "bottom-right",
+        });
+        break;
+      case "warning":
+        toast.warning(message, {
+          position: "bottom-right",
+        });
+        break;
+      default:
+        toast.success(message, {
+          position: "bottom-right",
+        });
+        break;
+    }
+  };
+
   const validationSchema = Yup.object().shape({
     inputValue: Yup.number()
       .positive("Input value must be a positive number")
@@ -47,37 +72,32 @@ export const CryptoSwappingForm = () => {
     <div className="w-full h-full m-auto justify-items-center">
       <h1 className="text-3xl font-bold mb-10">SWAP</h1>
       <Formik
-        initialValues={{
-          inputValue: 0,
-          inputCurrency: 0,
-          outputValue: 0,
-          outputCurrency: 0,
-        } as ICryptoForm}
+        initialValues={
+          {
+            inputValue: 0,
+            inputCurrency: 0,
+            outputValue: 0,
+            outputCurrency: 0,
+          } as ICryptoForm
+        }
         validateOnBlur
         validationSchema={validationSchema}
         enableReinitialize
-        onSubmit={(values, actions) => {
+        onSubmit={(_values, actions) => {
           setTimeout(() => {
-            alert(JSON.stringify(values, null, 2));
+            const successMessage = `Tranfer successfully!`;
+            displayToast("success", successMessage);
             actions.setSubmitting(false);
           }, 1000);
         }}
       >
-        {({
-          values,
-          errors,
-          handleChange,
-          handleBlur,
-          handleSubmit,
-          setValues,
-        }) => (
-          <form onSubmit={handleSubmit}>
+        {({ values, handleChange, handleBlur, handleSubmit, setValues }) => (
+          <form className="flex flex-col" onSubmit={handleSubmit}>
             <Grid className="justify-center items-center gap-4" container>
               <Grid item>
                 <div className="flex">
                   <InputField
                     required={true}
-                    label={"To"}
                     name={"inputValue"}
                     value={values["inputValue"]}
                     handleChange={(e) => {
@@ -164,7 +184,6 @@ export const CryptoSwappingForm = () => {
                 <div className="flex">
                   <InputField
                     required={true}
-                    label={"To"}
                     name={"outputValue"}
                     value={values["outputValue"]}
                     handleChange={(e) => {
@@ -244,11 +263,10 @@ export const CryptoSwappingForm = () => {
                   </CustomDropdownItem>
                 </div>
               </Grid>
-
-              <Grid item alignItems="stretch" style={{ display: "flex" }}>
-                <Button variant="text">Swap</Button>
-              </Grid>
             </Grid>
+            <Button className="self-end" type="submit" variant="text">
+              Swap
+            </Button>
           </form>
         )}
       </Formik>
