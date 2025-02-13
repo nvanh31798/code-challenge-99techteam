@@ -8,6 +8,7 @@ import CustomDropdownItem from "./CustomDropdownItem";
 import { SelectionOptionItem } from "./SelectionOptionItem";
 import { ICryptoForm } from "../interfaces/ICryptoForm";
 import { toast } from "react-toastify";
+import { mockSwapApi } from "../mock/mockApi";
 
 interface CryptoInfo {
   currency?: string;
@@ -83,13 +84,20 @@ export const CryptoSwappingForm = () => {
         validateOnBlur
         validationSchema={validationSchema}
         enableReinitialize
-        onSubmit={(_values, actions) => {
-          setTimeout(() => {
-            const successMessage = `Tranfer successfully!`;
-            displayToast("success", successMessage);
+        onSubmit={async (values, actions) => {
+          try {
+            const response = await mockSwapApi(values);
+            if (response.success) {
+              displayToast("success", response.message);
+            } else {
+              displayToast("error", "Swap failed, please try again.");
+            }
+          } catch (error) {
+            displayToast("error", "An unexpected error occurred.");
+          } finally {
             actions.setSubmitting(false);
-            actions.resetForm()
-          }, 1000);
+            actions.resetForm();
+          }
         }}
       >
         {({
@@ -226,7 +234,6 @@ export const CryptoSwappingForm = () => {
                       ) {
                         return;
                       }
-                      // const rate = newValue / values["inputCurrency"];
                       const rate = values["inputCurrency"] / newValue;
                       setValues(
                         {
