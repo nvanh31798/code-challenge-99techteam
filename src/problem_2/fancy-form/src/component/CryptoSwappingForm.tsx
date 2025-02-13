@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Formik } from "formik";
+import * as Yup from "yup";
 import { InputField } from "./InputField";
 import { Grid, Button, Box } from "@mui/material";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
@@ -14,7 +15,24 @@ interface CryptoInfo {
 
 export const CryptoSwappingForm = () => {
   const [cryptoList, setCryptoList] = useState<CryptoInfo[]>([]);
-
+  const validationSchema = Yup.object().shape({
+    inputValue: Yup.number()
+      .positive("Input value must be a positive number")
+      .required("Input value is required"),
+    inputCurrency: Yup.number()
+      .moreThan(0, "Please select an input currency")
+      .required("Input currency is required"),
+    outputValue: Yup.number()
+      .positive("Output value must be a positive number")
+      .required("Output value is required"),
+    outputCurrency: Yup.number()
+      .moreThan(0, "Please select an output currency")
+      .required("Output currency is required")
+      .notOneOf(
+        [Yup.ref("inputCurrency")],
+        "Input and output currencies must be different"
+      ),
+  });
   useEffect(() => {
     fetch("https://interview.switcheo.com/prices.json", { method: "GET" }).then(
       async (res) => {
@@ -25,8 +43,8 @@ export const CryptoSwappingForm = () => {
   }, []);
 
   return (
-    <>
-      <h1 className="text-3xl font-bold underline">SWAP</h1>
+    <div className="w-full h-full m-auto justify-items-center">
+      <h1 className="text-3xl font-bold mb-10">SWAP</h1>
       <Formik
         initialValues={{
           ["inputValue"]: 0,
@@ -35,6 +53,7 @@ export const CryptoSwappingForm = () => {
           ["outputCurrency"]: 0,
         }}
         validateOnBlur
+        validationSchema={validationSchema}
         enableReinitialize
         onSubmit={(values, actions) => {
           setTimeout(() => {
@@ -43,9 +62,16 @@ export const CryptoSwappingForm = () => {
           }, 1000);
         }}
       >
-        {({ values, handleChange, handleBlur, handleSubmit, setValues }) => (
+        {({
+          values,
+          errors,
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          setValues,
+        }) => (
           <form onSubmit={handleSubmit}>
-            <Grid className="items-center gap-4" container>
+            <Grid className="justify-center items-center gap-4" container>
               <Grid item>
                 <div className="flex">
                   <InputField
@@ -55,15 +81,16 @@ export const CryptoSwappingForm = () => {
                     value={values["inputValue"]}
                     handleChange={(e) => {
                       handleChange(e);
-                      const newValue = e?.target?.value;
                       if (
                         !values["outputCurrency"] ||
-                        !values["inputCurrency"]
+                        !values["inputCurrency"] ||
+                        typeof e === "string"
                       ) {
                         return;
                       }
+                      const newValue = e?.target?.value;
                       const rate =
-                        values["outputCurrency"] / values["inputCurrency"];
+                        values["inputCurrency"] / values["outputCurrency"];
                       setValues(
                         {
                           ...values,
@@ -85,7 +112,8 @@ export const CryptoSwappingForm = () => {
                       ) {
                         return;
                       }
-                      const rate = values["outputCurrency"] / newValue;
+                      const rate = newValue / values["outputCurrency"];
+                      console.log(rate);
                       setValues(
                         {
                           ...values,
@@ -150,7 +178,7 @@ export const CryptoSwappingForm = () => {
                       }
                       const newValue = e?.target?.value;
                       const rate =
-                        values["inputCurrency"] / values["outputCurrency"];
+                        values["outputCurrency"] / values["inputCurrency"];
                       setValues(
                         {
                           ...values,
@@ -171,7 +199,8 @@ export const CryptoSwappingForm = () => {
                       ) {
                         return;
                       }
-                      const rate = newValue / values["inputCurrency"];
+                      // const rate = newValue / values["inputCurrency"];
+                      const rate = values["inputCurrency"] / newValue;
                       setValues(
                         {
                           ...values,
@@ -223,6 +252,6 @@ export const CryptoSwappingForm = () => {
           </form>
         )}
       </Formik>
-    </>
+    </div>
   );
 };

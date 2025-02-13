@@ -43,7 +43,7 @@ export const InputField = ({
         onBlur={onBlur}
         value={meta.value}
         error={!!(meta?.touched && meta?.error)}
-        helperText={meta?.error}
+        helperText={!!(meta?.touched && meta?.error) ? meta?.error : ""}
       />
     </div>
   );

@@ -10,6 +10,7 @@ import { ReactNode } from "react";
 import UnfoldMoreRoundedIcon from "@mui/icons-material/UnfoldMoreRounded";
 import React from "react";
 import { useField } from "formik";
+import { FormControl, FormHelperText } from "@mui/material";
 
 interface CustomDropdownItemProps {
   name: string;
@@ -24,7 +25,7 @@ export default function CustomDropdownItem({
 }: CustomDropdownItemProps) {
   const [, meta, helpers] = useField(name);
   const { setValue } = helpers;
-  const { value } = meta;
+  const { value, error, touched } = meta;
 
   const onSelectHandle = (value: number | null) => {
     handleChange?.(value);
@@ -32,19 +33,24 @@ export default function CustomDropdownItem({
   };
 
   return (
-    <Select
-      name={name}
-      value={value}
-      onChange={(_, newValue) => onSelectHandle(newValue)}
-      renderValue={(option: SelectOption<number> | null) => {
-        if (option == null || option.value === 0) {
-          return "Select an option…";
-        }
-        return <span className="font-bold">{option.label}</span>;
-      }}
-    >
-      {children}
-    </Select>
+    <div className="flex flex-col">
+      <FormControl error={!!(error)}>
+        <Select
+          name={name}
+          value={value}
+          onChange={(_, newValue) => onSelectHandle(newValue)}
+          renderValue={(option: SelectOption<number> | null) => {
+            if (option == null || option.value === 0) {
+              return "Select an option…";
+            }
+            return <span className="font-bold">{option.label}</span>;
+          }}
+        >
+          {children}
+        </Select>
+        {!!(error) ? <FormHelperText>{error}</FormHelperText> : null}
+      </FormControl>
+    </div>
   );
 }
 
@@ -103,6 +109,7 @@ const StyledButton = styled("button", { shouldForwardProp: () => true })(
     font-family: 'IBM Plex Sans', sans-serif;
     font-size: 0.875rem;
     box-sizing: border-box;
+    height: 57px;
     min-width: 120px;
     padding: 8px 12px;
     border-radius: 8px;
