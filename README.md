@@ -48,4 +48,30 @@ To set up and run Problem 2, follow these steps:
 
 ## Problem 3: Solution Explanation  
 
-You can find a detailed explanation of the solution in the provided documentation or code comments.
+### Overview  
+In this problem, the goal was to optimize and correct a React functional component that processes wallet balances. The component:  
+- Fetches wallet balances and cryptocurrency prices.  
+- Filters and sorts balances based on predefined blockchain priority rules.  
+- Formats and renders the wallet balance data in a UI component.  
+
+### Issues Identified & Solutions  
+
+#### 1. Incorrect Filtering Logic  
+- **Issue:** The condition referenced an undefined variable (`lhsPriority`), causing a runtime error.  
+- **Solution:** Used `balancePriority` instead to ensure proper filtering of balances based on blockchain priority.  
+
+#### 2. Inefficient Sorting Logic  
+- **Issue:** Sorting was performed every time `balances` or `prices` changed, even though `prices` were not used in sorting.  
+- **Solution:** Optimized `useMemo` dependencies to only trigger when `balances` change, reducing unnecessary sorting.  
+
+#### 3. Incorrect Type Usage in Mapping  
+- **Issue:** `sortedBalances` contained `WalletBalance`, but it was mapped as `FormattedWalletBalance`, leading to type errors.  
+- **Solution:** Introduced a transformation step before rendering to correctly convert `WalletBalance` to `FormattedWalletBalance`.  
+
+#### 4. Hardcoded Priority Values  
+- **Issue:** Used a `switch-case` statement, making it difficult to maintain.  
+- **Solution:** Replaced with a TypeScript `enum`, improving readability and maintainability.  
+
+#### 5. Unnecessary Intermediate Computation (`formattedBalances`)  
+- **Issue:** A separate mapping step was used just to add a formatted amount, which was redundant.  
+- **Solution:** Integrated the formatting directly within the `map` function when rendering `WalletRow`.  
