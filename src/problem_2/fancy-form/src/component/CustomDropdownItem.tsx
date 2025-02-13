@@ -11,14 +11,12 @@ import { useField } from "formik";
 import { FormControl, FormHelperText } from "@mui/material";
 import UnfoldMoreRoundedIcon from "@mui/icons-material/UnfoldMoreRounded";
 
-// Define interface for props
 interface CustomDropdownItemProps {
   name: string;
   children: ReactNode;
   handleChange?: (value: number | null) => void;
 }
 
-// Color constants for theming
 const COLORS = {
   blue: {
     light: "#DAECFF",
@@ -32,7 +30,6 @@ const COLORS = {
   },
 };
 
-// Custom Dropdown component integrated with Formik
 const CustomDropdownItem: React.FC<CustomDropdownItemProps> = ({ name, children, handleChange }) => {
   const [, meta, helpers] = useField(name);
   const { setValue } = helpers;
@@ -72,7 +69,6 @@ const StyledSelect = (props: SelectProps<number, false>) => {
   return <BaseSelect {...props} slots={slots} />;
 };
 
-// Styled Button component for Select
 const StyledButton = forwardRef<HTMLButtonElement, SelectRootSlotProps<number, false>>(
   ({ ownerState, ...props }, ref) => (
     <StyledButtonWrapper type="button" {...props} ref={ref}>
@@ -84,7 +80,6 @@ const StyledButton = forwardRef<HTMLButtonElement, SelectRootSlotProps<number, f
 
 StyledButton.displayName = "StyledButton";
 
-// Styled button wrapper
 const StyledButtonWrapper = styled("button")(({ theme }) => ({
   fontFamily: "'IBM Plex Sans', sans-serif",
   fontSize: "0.875rem",
@@ -122,7 +117,6 @@ const StyledButtonWrapper = styled("button")(({ theme }) => ({
   },
 }));
 
-// Styled listbox for dropdown
 const StyledListbox = styled("ul")(({ theme }) => ({
   fontFamily: "'IBM Plex Sans', sans-serif",
   fontSize: "0.875rem",
@@ -139,7 +133,6 @@ const StyledListbox = styled("ul")(({ theme }) => ({
   boxShadow: `0 2px 4px ${theme.palette.mode === "dark" ? "rgba(0,0,0, 0.5)" : "rgba(0,0,0, 0.05)"}`,
 }));
 
-// Styled popup wrapper
 const StyledPopup = styled("div")`
   z-index: 1;
 `;
