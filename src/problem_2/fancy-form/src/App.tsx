@@ -1,13 +1,13 @@
 import { ToastContainer } from "react-toastify";
 import { CryptoSwappingForm } from "./component/CryptoSwappingForm";
 
-function App() {
-  return (
-    <div className="p-10">
-      <CryptoSwappingForm />
-      <ToastContainer autoClose={5000} draggable={false} />
-    </div>
-  );
-}
+const TOAST_AUTO_CLOSE = 5000;
+
+const App = () => (
+  <div className="p-10">
+    <CryptoSwappingForm />
+    <ToastContainer autoClose={TOAST_AUTO_CLOSE} draggable={false} />
+  </div>
+);
 
 export default App;

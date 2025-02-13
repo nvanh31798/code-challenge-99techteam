@@ -1,3 +1,4 @@
+import React, { ReactNode, forwardRef } from "react";
 import {
   Select as BaseSelect,
   SelectProps,
@@ -6,169 +7,141 @@ import {
 } from "@mui/base/Select";
 import { SelectOption } from "@mui/base/useOption";
 import { styled } from "@mui/system";
-import { ReactNode } from "react";
-import UnfoldMoreRoundedIcon from "@mui/icons-material/UnfoldMoreRounded";
-import React from "react";
 import { useField } from "formik";
 import { FormControl, FormHelperText } from "@mui/material";
+import UnfoldMoreRoundedIcon from "@mui/icons-material/UnfoldMoreRounded";
 
+// Define interface for props
 interface CustomDropdownItemProps {
   name: string;
   children: ReactNode;
   handleChange?: (value: number | null) => void;
 }
 
-export default function CustomDropdownItem({
-  name,
-  children,
-  handleChange,
-}: CustomDropdownItemProps) {
+// Color constants for theming
+const COLORS = {
+  blue: {
+    light: "#DAECFF",
+    medium: "#3399FF",
+    dark: "#0059B2",
+  },
+  grey: {
+    light: "#F3F6F9",
+    medium: "#B0B8C4",
+    dark: "#1C2025",
+  },
+};
+
+// Custom Dropdown component integrated with Formik
+const CustomDropdownItem: React.FC<CustomDropdownItemProps> = ({ name, children, handleChange }) => {
   const [, meta, helpers] = useField(name);
   const { setValue } = helpers;
-  const { value, error } = meta;
+  const { value, error, touched } = meta;
 
-  const onSelectHandle = (value: number | null) => {
-    handleChange?.(value);
-    setValue(value);
+  const onSelectHandle = (selectedValue: number | null) => {
+    handleChange?.(selectedValue);
+    setValue(selectedValue);
   };
 
   return (
-    <div className="flex flex-col">
-      <FormControl error={!!(error)}>
-        <Select
-          name={name}
-          value={value}
-          onChange={(_, newValue) => onSelectHandle(newValue)}
-          renderValue={(option: SelectOption<number> | null) => {
-            if (option == null || option.value === 0) {
-              return "Select an option…";
-            }
-            return <span className="font-bold">{option.label}</span>;
-          }}
-        >
-          {children}
-        </Select>
-        {!!(error) ? <FormHelperText>{error}</FormHelperText> : null}
-      </FormControl>
-    </div>
+    <FormControl error={!!(touched && error)} className="flex flex-col">
+      <StyledSelect
+        name={name}
+        value={value}
+        onChange={(_, newValue) => onSelectHandle(newValue)}
+        renderValue={(option: SelectOption<number> | null) =>
+          option == null || option.value === 0 ? "Select an option…" : <span className="font-bold">{option.label}</span>
+        }
+      >
+        {children}
+      </StyledSelect>
+      {error && <FormHelperText>{error}</FormHelperText>}
+    </FormControl>
   );
-}
+};
 
-function Select(props: SelectProps<number, false>) {
+// Styled Select Component
+const StyledSelect = (props: SelectProps<number, false>) => {
   const slots: SelectProps<number, false>["slots"] = {
-    root: Button,
-    listbox: Listbox,
-    popup: Popup,
+    root: StyledButton,
+    listbox: StyledListbox,
+    popup: StyledPopup,
     ...props.slots,
   };
 
   return <BaseSelect {...props} slots={slots} />;
-}
-
-const blue = {
-  100: "#DAECFF",
-  200: "#99CCF3",
-  400: "#3399FF",
-  500: "#007FFF",
-  600: "#0072E5",
-  700: "#0059B2",
-  900: "#003A75",
 };
 
-const grey = {
-  50: "#F3F6F9",
-  100: "#E5EAF2",
-  200: "#DAE2ED",
-  300: "#C7D0DD",
-  400: "#B0B8C4",
-  500: "#9DA8B7",
-  600: "#6B7A90",
-  700: "#434D5B",
-  800: "#303740",
-  900: "#1C2025",
-};
-
-const Button = React.forwardRef(function Button<
-  TValue extends {},
-  Multiple extends boolean
->(
-  props: SelectRootSlotProps<TValue, Multiple>,
-  ref: React.ForwardedRef<HTMLButtonElement>
-) {
-  const { ownerState, ...other } = props;
-  return (
-    <StyledButton type="button" {...other} ref={ref}>
-      {other.children}
+// Styled Button component for Select
+const StyledButton = forwardRef<HTMLButtonElement, SelectRootSlotProps<number, false>>(
+  ({ ownerState, ...props }, ref) => (
+    <StyledButtonWrapper type="button" {...props} ref={ref}>
+      {props.children}
       <UnfoldMoreRoundedIcon />
-    </StyledButton>
-  );
-});
-
-const StyledButton = styled("button", { shouldForwardProp: () => true })(
-  ({ theme }) => `
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 0.875rem;
-    box-sizing: border-box;
-    height: 57px;
-    width: 180px;
-    padding: 8px 12px;
-    border-radius: 8px;
-    text-align: left;
-    line-height: 1.5;
-    background: ${theme.palette.mode === "dark" ? grey[900] : "#fff"};
-    border: 1px solid ${theme.palette.mode === "dark" ? grey[700] : grey[200]};
-    color: ${theme.palette.mode === "dark" ? grey[300] : grey[900]};
-    position: relative;
-    box-shadow: 0 2px 4px ${
-      theme.palette.mode === "dark" ? "rgba(0,0,0, 0.5)" : "rgba(0,0,0, 0.05)"
-    };
-    transition-property: all;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 120ms;
-  
-    &:hover {
-      background: ${theme.palette.mode === "dark" ? grey[800] : grey[50]};
-      border-color: ${theme.palette.mode === "dark" ? grey[600] : grey[300]};
-    }
-  
-    &.${selectClasses.focusVisible} {
-      outline: 0;
-      border-color: ${blue[400]};
-      box-shadow: 0 0 0 3px ${
-        theme.palette.mode === "dark" ? blue[700] : blue[200]
-      };
-    }
-  
-    & > svg {
-      font-size: 1rem;
-      position: absolute;
-      height: 100%;
-      top: 0;
-      right: 10px;
-    }
-    `
+    </StyledButtonWrapper>
+  )
 );
 
-const Listbox = styled("ul")(
-  ({ theme }) => `
-  font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 0.875rem;
-  box-sizing: border-box;
-  padding: 6px;
-  margin: 12px 0;
-  min-width: 320px;
-  border-radius: 12px;
-  overflow: auto;
-  outline: 0;
-  background: ${theme.palette.mode === "dark" ? grey[900] : "#fff"};
-  border: 1px solid ${theme.palette.mode === "dark" ? grey[700] : grey[200]};
-  color: ${theme.palette.mode === "dark" ? grey[300] : grey[900]};
-  box-shadow: 0 2px 4px ${
-    theme.palette.mode === "dark" ? "rgba(0,0,0, 0.5)" : "rgba(0,0,0, 0.05)"
-  };
-  `
-);
+StyledButton.displayName = "StyledButton";
 
-const Popup = styled("div")`
+// Styled button wrapper
+const StyledButtonWrapper = styled("button")(({ theme }) => ({
+  fontFamily: "'IBM Plex Sans', sans-serif",
+  fontSize: "0.875rem",
+  boxSizing: "border-box",
+  height: "57px",
+  width: "180px",
+  padding: "8px 12px",
+  borderRadius: "8px",
+  textAlign: "left",
+  lineHeight: "1.5",
+  background: theme.palette.mode === "dark" ? COLORS.grey.dark : "#fff",
+  border: `1px solid ${theme.palette.mode === "dark" ? COLORS.grey.medium : COLORS.grey.light}`,
+  color: theme.palette.mode === "dark" ? COLORS.grey.light : COLORS.grey.dark,
+  position: "relative",
+  boxShadow: `0 2px 4px ${theme.palette.mode === "dark" ? "rgba(0,0,0, 0.5)" : "rgba(0,0,0, 0.05)"}`,
+  transition: "all 120ms cubic-bezier(0.4, 0, 0.2, 1)",
+
+  "&:hover": {
+    background: theme.palette.mode === "dark" ? COLORS.grey.medium : COLORS.grey.light,
+    borderColor: theme.palette.mode === "dark" ? COLORS.grey.medium : COLORS.grey.dark,
+  },
+
+  [`&.${selectClasses.focusVisible}`]: {
+    outline: 0,
+    borderColor: COLORS.blue.medium,
+    boxShadow: `0 0 0 3px ${theme.palette.mode === "dark" ? COLORS.blue.dark : COLORS.blue.light}`,
+  },
+
+  "& > svg": {
+    fontSize: "1rem",
+    position: "absolute",
+    height: "100%",
+    top: 0,
+    right: "10px",
+  },
+}));
+
+// Styled listbox for dropdown
+const StyledListbox = styled("ul")(({ theme }) => ({
+  fontFamily: "'IBM Plex Sans', sans-serif",
+  fontSize: "0.875rem",
+  boxSizing: "border-box",
+  padding: "6px",
+  margin: "12px 0",
+  minWidth: "320px",
+  borderRadius: "12px",
+  overflow: "auto",
+  outline: 0,
+  background: theme.palette.mode === "dark" ? COLORS.grey.dark : "#fff",
+  border: `1px solid ${theme.palette.mode === "dark" ? COLORS.grey.medium : COLORS.grey.light}`,
+  color: theme.palette.mode === "dark" ? COLORS.grey.light : COLORS.grey.dark,
+  boxShadow: `0 2px 4px ${theme.palette.mode === "dark" ? "rgba(0,0,0, 0.5)" : "rgba(0,0,0, 0.05)"}`,
+}));
+
+// Styled popup wrapper
+const StyledPopup = styled("div")`
   z-index: 1;
 `;
+
+export default CustomDropdownItem;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { InputField } from "./InputField";
@@ -16,84 +16,85 @@ interface CryptoInfo {
   price?: number;
 }
 
+const API_URL = "https://interview.switcheo.com/prices.json";
+const TOAST_POSITION = "bottom-right";
+const DEFAULT_FORM_VALUES: ICryptoForm = {
+  inputValue: 0,
+  inputCurrency: 0,
+  outputValue: 0,
+  outputCurrency: 0,
+};
+
+const MESSAGES = {
+  error: "An unexpected error occurred.",
+  fetchError: "Failed to load crypto prices.",
+  swapFailed: "Swap failed, please try again.",
+  positiveNumber: "Must be a positive number",
+  selectCurrency: "Required",
+  currencyDifferent: "Input and output currencies must be different",
+};
+
+const BUTTON_TEXT = {
+  swapping: "Swapping...",
+  swap: "SWAP",
+};
+
 export const CryptoSwappingForm = () => {
   const [cryptoList, setCryptoList] = useState<CryptoInfo[]>([]);
 
-  const displayToast = (
-    type: "error" | "success" | "warning",
-    message: string
-  ) => {
-    switch (type) {
-      case "error":
-        toast.error(message, {
-          position: "bottom-right",
-        });
-        break;
-      case "warning":
-        toast.warning(message, {
-          position: "bottom-right",
-        });
-        break;
-      default:
-        toast.success(message, {
-          position: "bottom-right",
-        });
-        break;
-    }
-  };
+  const handleDisplayToast = useCallback(
+    (type: "error" | "success", message: string) => {
+      toast[type](message, { position: TOAST_POSITION });
+    },
+    []
+  );
 
-  const validationSchema = Yup.object().shape({
+  const validationSchema = Yup.object({
     inputValue: Yup.number()
-      .positive("Input value must be a positive number")
-      .required("Input value is required"),
+      .positive(MESSAGES.positiveNumber)
+      .required(MESSAGES.positiveNumber),
     inputCurrency: Yup.number()
-      .moreThan(0, "Please select an input currency")
-      .required("Input currency is required"),
+      .moreThan(0, MESSAGES.selectCurrency)
+      .required(MESSAGES.selectCurrency),
     outputValue: Yup.number()
-      .positive("Output value must be a positive number")
-      .required("Output value is required"),
+      .positive(MESSAGES.positiveNumber)
+      .required(MESSAGES.positiveNumber),
     outputCurrency: Yup.number()
-      .moreThan(0, "Please select an output currency")
-      .required("Output currency is required")
-      .notOneOf(
-        [Yup.ref("inputCurrency")],
-        "Input and output currencies must be different"
-      ),
+      .moreThan(0, MESSAGES.selectCurrency)
+      .required(MESSAGES.selectCurrency)
+      .notOneOf([Yup.ref("inputCurrency")], MESSAGES.currencyDifferent),
   });
+
   useEffect(() => {
-    fetch("https://interview.switcheo.com/prices.json", { method: "GET" }).then(
-      async (res) => {
-        const data = await res.json();
+    const fetchCryptoList = async () => {
+      try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
         setCryptoList(data);
+      } catch (error) {
+        toast.error(MESSAGES.fetchError, { position: TOAST_POSITION });
       }
-    );
+    };
+    fetchCryptoList();
   }, []);
 
   return (
     <div className="w-full h-full m-auto justify-items-center">
       <h1 className="text-3xl font-bold mb-10">SWAP</h1>
       <Formik
-        initialValues={
-          {
-            inputValue: 0,
-            inputCurrency: 0,
-            outputValue: 0,
-            outputCurrency: 0,
-          } as ICryptoForm
-        }
+        initialValues={DEFAULT_FORM_VALUES}
         validateOnBlur
         validationSchema={validationSchema}
         enableReinitialize
         onSubmit={async (values, actions) => {
           try {
             const response = await mockSwapApi(values);
-            if (response.success) {
-              displayToast("success", response.message);
-            } else {
-              displayToast("error", "Swap failed, please try again.");
-            }
-          } catch (error) {
-            displayToast("error", "An unexpected error occurred.");
+            handleDisplayToast(
+              response.success ? "success" : "error",
+              response.message || MESSAGES.swapFailed
+            );
+          } catch {
+            handleDisplayToast("error", MESSAGES.error);
           } finally {
             actions.setSubmitting(false);
             actions.resetForm();
@@ -280,7 +281,7 @@ export const CryptoSwappingForm = () => {
               </Grid>
             </Grid>
             <Button className="self-end" type="submit" variant="text">
-              {isSubmitting ? "Swapping..." : "Swap"}
+              {isSubmitting ? BUTTON_TEXT.swapping : BUTTON_TEXT.swap}
             </Button>
           </form>
         )}
