@@ -91,7 +91,14 @@ export const CryptoSwappingForm = () => {
           }, 1000);
         }}
       >
-        {({ values, handleChange, handleBlur, handleSubmit, setValues }) => (
+        {({
+          values,
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          setValues,
+          isSubmitting,
+        }) => (
           <form className="flex flex-col" onSubmit={handleSubmit}>
             <Grid className="justify-center items-center gap-4" container>
               <Grid item>
@@ -265,7 +272,7 @@ export const CryptoSwappingForm = () => {
               </Grid>
             </Grid>
             <Button className="self-end" type="submit" variant="text">
-              Swap
+              {isSubmitting ? "Swapping..." : "Swap"}
             </Button>
           </form>
         )}
