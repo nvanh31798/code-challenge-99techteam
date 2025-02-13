@@ -6,6 +6,7 @@ import { Grid, Button, Box } from "@mui/material";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import CustomDropdownItem from "./CustomDropdownItem";
 import { SelectionOptionItem } from "./SelectionOptionItem";
+import { ICryptoForm } from "../interfaces/ICryptoForm";
 
 interface CryptoInfo {
   currency?: string;
@@ -47,11 +48,11 @@ export const CryptoSwappingForm = () => {
       <h1 className="text-3xl font-bold mb-10">SWAP</h1>
       <Formik
         initialValues={{
-          ["inputValue"]: 0,
-          ["inputCurrency"]: 0,
-          ["outputValue"]: 0,
-          ["outputCurrency"]: 0,
-        }}
+          inputValue: 0,
+          inputCurrency: 0,
+          outputValue: 0,
+          outputCurrency: 0,
+        } as ICryptoForm}
         validateOnBlur
         validationSchema={validationSchema}
         enableReinitialize
@@ -113,7 +114,6 @@ export const CryptoSwappingForm = () => {
                         return;
                       }
                       const rate = newValue / values["outputCurrency"];
-                      console.log(rate);
                       setValues(
                         {
                           ...values,
