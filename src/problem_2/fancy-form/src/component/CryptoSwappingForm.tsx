@@ -88,6 +88,7 @@ export const CryptoSwappingForm = () => {
             const successMessage = `Tranfer successfully!`;
             displayToast("success", successMessage);
             actions.setSubmitting(false);
+            actions.resetForm()
           }, 1000);
         }}
       >
