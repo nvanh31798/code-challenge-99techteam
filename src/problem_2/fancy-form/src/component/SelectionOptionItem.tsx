@@ -1,4 +1,3 @@
-import React from "react";
 import { Option as BaseOption, optionClasses } from "@mui/base/Option";
 import { styled } from "@mui/material";
 const blue = {
